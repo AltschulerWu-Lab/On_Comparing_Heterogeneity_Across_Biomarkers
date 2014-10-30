@@ -1,0 +1,327 @@
+<h1 id="on-comparing-heterogeneity-across-biomarkers">On Comparing Heterogeneity Across Biomarkers</h1>
+<h2 id="overview">Overview</h2>
+<p>This is a description of the MATLAB code and data accompanying the paper &quot;On Comparing Heterogeneity Across Biomarkers&quot; by Steininger et al, to be<br />published in Cytometry A.</p>
+<p>The primary contribution of this work is a method to determine the extent to which (possibly non-co-stained) biomarkers re-identify the same cellular subpopulations.<br />Crucially, this method does not require biomarkers of interest to be co-stained on the same cells. It is enough if the biomarkers are stained (possible separately)<br />on common set of cell lines, where subpopulations are identified independently for each marker.</p>
+<p>The degree of subpopulation re-identification between markers is quantified by using the so called Subpopulation Structure Similarity(S3) score.</p>
+<p>Correspondingly,the primary novelty of the MATLAB code supplied here is the calculation of the S3 score between a pair of biomarkers taking as input the<br />subpopulation profiles (fractions of cells in different sub-populations) of the biomarkers across a common set of cell lines. This code can be found<br />in the <code>Core_Functions</code> directory. More specifically, if the subpopulation profiles for a set of biomarkers are stored in <code>profiles.mat</code> in a format described<br />in the data section below, then executing:</p>
+<pre><code>Calculate_S3_Scores(&#39;profiles.mat&#39;,&#39;S3_output.mat&#39;);</code></pre>
+<p>Will calculate the S3 scores between all pairs of biomarkers and store the result in <code>S3_output.mat</code> in a format described in the Data section below.</p>
+<h2 id="figures">Figures:</h2>
+<p>The .m files in the root level directory are scripts that will generate the figures in the paper. It should be noted that while there should be strong qualitative<br />agreement between the figures generated using this code and those published in the paper, there may be minor quantitative difference. These differences are on account<br />of the randomness inherent to the process of generating subpopulation profiles (most results shown are found by averaging results across multiple runs).</p>
+<h3 id="figure-1-cartoon-overview">Figure 1: Cartoon Overview</h3>
+<p>This is a cartoon overview of our approach which is not generated from code.</p>
+<h3 id="figure-2-simple-demonstration-using-2-subpopulations">Figure 2: Simple demonstration using 2 subpopulations</h3>
+<p>2 pairs of <strong>non-co-stained</strong> biomarkers were stained on a common set of cell lines. For each biomarker cells were classified into low and high expressing subpopulations.<br />In the plots, each point corresponds to a single cell line and it's x and y coordinates are given by the fraction of cells in low (or high as specified) subpopulations. The<br />relations between the subpopulation fractions tell us about the relationship between the subpopulations of the different markers. To generate this figure execute</p>
+<pre><code>Fig2.m</code></pre>
+<h3 id="figure-3-validation">Figure 3: Validation</h3>
+<p>The extent to which subpopulation state based on one biomarker predict those of another is determined by co-staining the biomarkers, and quantified using<br />the mutual information between the biomarkers' subpopulation assignments. The S3 score, which does not require co-staining, is then compared to this<br />gold standard of mutual information for multiple biomarker pairs. The figure consists of two parts</p>
+<ol>
+<li>Validation scatter plot of S3 vs Mutual Information. This can be run using <code>Fig3_scatterplots.m</code></li>
+<li>Cloud plots to help interpret the results above. Shown are the distribution of biomarker phenotypes across a selection of cell lines. Run using <code>Fig3_scatterplots.m</code></li>
+</ol>
+<h3 id="figure-4">Figure 4:</h3>
+<p>This is the results figure, showing a similarity matrix between different biomarkers based on their S3 score.To generate this run <code>Fig4.m</code></p>
+<h2 id="data">Data:</h2>
+<p>The data used in this experiment comes from two different sets of experiments</p>
+<ol>
+<li>LCC: a panel of 33 lung cancer cell lines stained for various biomarkers. This is referred to as <strong><code>cancer_cell_lines</code></strong> in the data.</li>
+<li>CP: A panel of 49 clones of a single lung cancer cell line (H460) stained for various biomarkers. This is referred to as <strong><code>clone</code></strong> in the data.</li>
+</ol>
+<p>Data to generate various figures is present in the <code>Data</code> directory. There are three different kinds of data stored</p>
+<ol>
+<li><strong>Features</strong>: Raw features for each cell in the data set across all biomarkers:<code>features.mat</code></li>
+<li><strong>Profiles</strong>: Subpopulation profiles for the different cell lines in the data set:<code>profiles.mat</code> (with biomarker specific number of subpopulations)<br />and <code>2subpop_profiles.mat</code> (for profiles with only 2 subpopulations for all marker as need for Figure 2)</li>
+<li><strong>S3</strong>: S3 scores between the different pairs of biomarkers:<code>S3.mat</code> and <code>S3_paper.mat</code>.</li>
+</ol>
+<p>Note: <code>S3.mat</code> was generated using the profiles and code provided here. <code>S3_paper.mat</code> contains the results shown in the paper,<br />and calculated on a cluster using a larger number of randomizations and synthetic repeats. The mean levels are similar for both files,<br />but <code>S3_paper.mat</code> shows a smaller error bars on account of increased sampling.</p>
+<p>Each file contains the corresponding data for both data sets. The descriptions of the different data formats are below.</p>
+<h3 id="features">Features</h3>
+<p>To load the features use:</p>
+<pre><code>&gt;&gt; feature_data=load(&#39;features.mat&#39;)
+
+feature_data = 
+
+       data_set_names: {&#39;clone&#39;  &#39;cancer_cell_lines&#39;}
+    data_set_features: {2x1 cell}</code></pre>
+<p>The features themselves are stored within the variable <code>data_set_features</code>, each element of which contains the features for a single data set. The variable <code>data_set_names</code> tells<br />us that the first element of <code>data_set_features</code> contains the data for the <code>clone</code> data set, while the second element contains the data for the <code>cancer_cell_lines</code>.</p>
+<p>Thus to view the data for the <code>cancer_cell_lines</code> data one would use:</p>
+<pre><code>&gt;&gt; feature_data.data_set_features{2}
+
+ans = 
+
+          marker_names: {11x1 cell}
+    marker_set_numbers: [11x1 double]
+         feature_names: {11x1 cell}
+          feature_data: {11x1 cell}</code></pre>
+<p>The variables are organized on a per biomarker basis (11 biomarkers were studied in this data set). They are described in greater detail below:</p>
+<h4 id="marker_names">1. <code>marker_names</code></h4>
+<p>is a cell array containing the names of the various biomarkers</p>
+<pre><code>&gt;&gt; feature_data.data_set_features{2}.marker_names
+
+ans = 
+
+    &#39;DNA&#39;
+    &#39;betacatenin&#39;
+    &#39;vimentin&#39;
+    &#39;DNA&#39;
+    &#39;pSTAT3&#39;
+    &#39;pPTEN&#39;
+    &#39;DNA&#39;
+    &#39;H3K9Ac&#39;
+    &#39;pAkt&#39;
+    &#39;DNA&#39;
+    &#39;E-Cadherin&#39;</code></pre>
+<h4 id="feature_names">2. <code>feature_names</code>:</h4>
+<p>The single cell features used are marker specific, and this information is contained in the cell array <code>feature_names</code></p>
+<pre><code>&gt;&gt; feature_data.data_set_features{2}.feature_names     
+
+ans = 
+
+    &#39;Average DNA Nuclear Intensity&#39;
+    &#39;Average Cytoplasmic Intensity&#39;
+    &#39;Average Cellular Intensity&#39;
+    &#39;Average DNA Nuclear Intensity&#39;
+    &#39;Average Cellular Intensity&#39;
+    &#39;Average Cellular Intensity&#39;
+    &#39;Average DNA Nuclear Intensity&#39;
+    &#39;Average Nuclear Intensity&#39;
+    &#39;Average Cellular Intensity&#39;
+    &#39;Average DNA Nuclear Intensity&#39;
+    &#39;Average Cytoplasmic Intensity&#39;</code></pre>
+<p>Thus, for the second biomarker (betacatenin), each cell is characterized by the average intensity of that biomarker in the cytoplasmic pixels of that cell.</p>
+<h4 id="marker_set_numbers">3. <code>marker_set_numbers</code>:</h4>
+<p>Since it is only possible co-stain a few markers on a cell, the biomarkers were spilt into different marker-sets. All biomarkers within the same marker-set<br />were co-stained, and thus the levels of these biomarkers is measured simultaneously on the same cells. For biomarkers in different marker-sets, no cell is stained<br />for both biomarkers. <code>marker_set_numbers</code> is an array specifying which marker set each biomarker belongs to.</p>
+<pre><code>&gt;&gt; feature_data.data_set_features{2}.marker_set_numbers
+
+ans =
+
+     1
+     1
+     1
+     2
+     2
+     2
+     3
+     3
+     3
+     4
+     4</code></pre>
+<p>Thus the first three biomarkers (dna,betacetenin and vimentin were costained), but the second and eleventh biomarkers (betacatenin and e-cadherin) were not.</p>
+<h4 id="feature_data">4. <code>feature_data</code>:</h4>
+<p>This contains the values of single cell features organized by cell-line</p>
+<pre><code>&gt;&gt; feature_data.data_set_features{2}.feature_data 
+
+ans = 
+
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}
+    {33x1 cell}</code></pre>
+<p>Each element of <code>feature_data</code> corresponds to the collection of single cell features for a single biomarker. Within each element we have a further<br />grouping by cell lines. Since the <code>cancer_cell_lines</code> dataset contains 33 cell lines there are 33 elements. Thus</p>
+<pre><code>&gt;&gt; feature_data.data_set_features{2}.feature_data{5}{6}
+
+1.0e+03 *
+
+    0.5052
+    0.6340
+    0.5338
+    0.6901
+    0.8600
+    0.6267
+     ....
+     ....</code></pre>
+<p>gives us a column vector of the values of features for the 6th cell line of the 5th biomarker (pSTAT3). Each row is the value of the feature for a<br />single cell belonging to the specified cell line.</p>
+<h3 id="profiles">Profiles:</h3>
+<p>To load profile data run</p>
+<pre><code>&gt;&gt; profile_data=load(&#39;profiles.mat&#39;)
+
+profile_data = 
+
+       data_set_names: {&#39;clone&#39;  &#39;cancer_cell_lines&#39;}
+    data_set_profiles: {2x1 cell}
+</code></pre>
+<p><code>data_set_names</code> and <code>data_set_profiles</code> are similar to the corresponding elements in features except that <code>data_set_profiles</code> contains subpopulation profiles<br />(rather than feature data).</p>
+<p>The profile data for the <code>cancer_cell_lines</code> data set can be accessed as:</p>
+<pre><code>&gt;&gt; profile_data.data_set_profiles{2}
+
+ans = 
+
+          marker_names: {11x1 cell}
+    marker_set_numbers: [11x1 double]
+         feature_names: {11x1 cell}
+         subpop_models: {11x10 cell}
+              profiles: {11x10 cell}
+    subpop_assignments: {11x10 cell}</code></pre>
+<p>The organization of this data is by biomarker (this dataset contains 11 biomarkers), just as for the feature data. The fields <code>marker_names</code>,<br /><code>marker_set_numbers</code> and <code>feature_names</code> are identical to those used for the feature data. Thus the new fields are</p>
+<h4 id="subpop_models">1. <code>subpop_models</code>:</h4>
+<p>To assign cells to subpopulations, the single cell features corresponding to each biomarker are fit to a gaussian mixture model. <code>subpop_models</code> contains these models.<br />Since the models are the result of a non-convex optimization process, there is a stochastic element to them. To obtain more robust results, we<br />therefore generate 10 different &quot;synthetic replicate&quot; models for each biomarker (these models should, in principle, be the same, differing only in the stochasticity resulting<br />from the optimization process).</p>
+<pre><code>&gt;&gt; profile_data.data_set_profiles{2}.subpop_models
+
+ans = 
+
+  Columns 1 through 7
+
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+
+  Columns 8 through 10
+
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]
+    [1x1 gmdistribution]    [1x1 gmdistribution]    [1x1 gmdistribution]</code></pre>
+<p>Each row of this matrix corresponds to a single biomarker, and each column is a different replicate model. Thus the 4th replicate for the 5th<br />biomarker is given by</p>
+<pre><code>&gt;&gt; profile_data.data_set_profiles{2}.subpop_models{5,4}
+
+ans = 
+
+Gaussian mixture distribution with 6 components in 1 dimensions
+Component 1:
+Mixing proportion: 0.064124
+Mean:   4.2449e+03
+
+Component 2:
+Mixing proportion: 0.143616
+Mean:   2.0677e+03
+
+Component 3:
+Mixing proportion: 0.279754
+Mean:   1.0890e+03
+
+Component 4:
+Mixing proportion: 0.310095
+Mean:  660.9377
+
+Component 5:
+Mixing proportion: 0.005104
+Mean:   1.1466e+04
+
+Component 6:
+Mixing proportion: 0.197307
+Mean:  396.1769</code></pre>
+<p>Each model is a standard MATLAB gmdistribution. It should be noted that the number of components, i.e. number of subpopulations, is determined on a per biomarker basis using the BIC<br />score. However, this data is not included here.</p>
+<h4 id="subpop_assignments">2. <code>subpop_assignments</code>:</h4>
+<p>Based on the models above and their single cell feature values, cells are assigned to biomarker specific gmm subpopulations. <code>subpop_assignments</code> contains the<br />subpopulation that each cell is assigned to, grouped by cell line.</p>
+<pre><code>&gt;&gt; profile_data.data_set_profiles{2}.subpop_assignments
+
+ans = 
+
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}
+    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}    {33x1 cell}</code></pre>
+<p>The top-level organization is similar to the models, with each row corresponding to a biomarker and each column to a &quot;synthetic replicate&quot;. Each<br />element is a cell with sub-elements corresponding to different cell lines (there are 33 cell lines for this data set). Thus to access the<br />subpopulation assignments for 4th replicate model of the 5th marker we would use:</p>
+<pre><code>&gt;&gt; profile_data.data_set_profiles{2}.subpop_assignments{5,4}
+
+ans = 
+
+    [ 9309x1 double]
+    [ 3579x1 double]
+    [  734x1 double]
+    [ 2869x1 double]
+    [ 1344x1 double]
+    [ 1051x1 double]
+    [  669x1 double]
+    [ 1419x1 double]
+    [ 1116x1 double]
+    [ 1247x1 double]
+    [ 3496x1 double]
+    [ 2739x1 double]
+    [ 1250x1 double]
+    [ 1353x1 double]
+    [ 1413x1 double]
+    [ 2554x1 double]
+    [  729x1 double]
+    [ 1859x1 double]
+    [ 2344x1 double]
+    [ 1364x1 double]
+    [ 1219x1 double]
+    [ 2024x1 double]
+    [11001x1 double]
+    [ 1877x1 double]
+    [ 1368x1 double]
+    [ 1466x1 double]
+    [  737x1 double]
+    [ 1303x1 double]
+    [ 1835x1 double]
+    [  608x1 double]
+    [ 1959x1 double]
+    [  349x1 double]
+    [  614x1 double]</code></pre>
+<p>Each element here corresponds to one (of the 33) cell lines. For example the second element, corresponds to the 2nd cell line, and has 3579 values<br />corresponding to the different cells (biological not MATLAB) within that cell line. Each of these 3579 values lies between 1 and the number of<br />subpopulation used for the corresponding biomarker.</p>
+<h4 id="subpop_profiles">3. <code>subpop_profiles</code>:</h4>
+<p>The subpopulation assignments across cell lines can be represented in terms of a subpopulation profile (as descried earlier), with each cell line<br /> represented by its own profile for a specific biomarker (and synthetic replicate). The subpopulation profile for a cell line contains the fraction<br /> of its cells assigned to each subpopulation. Thus, each profile is a vector of length equal to the number of components (subpopulations) used in<br /> the corresponding model.</p>
+<pre><code>&gt;&gt; profile_data.data_set_profiles{2}.profiles               
+
+ans = 
+
+    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]
+    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]
+    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]
+    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]
+    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]
+    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]
+    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]
+    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]
+    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]    [33x5 double]
+    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]    [33x4 double]
+    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]    [33x6 double]</code></pre>
+<p>As above, each row correspond to a biomarker and each column to a synthetic replicate. Each element of this cell array is a matrix with rows<br />correponsind to cell lines (there are 33 cell lines in this dataset) and columns to subpopulations. Since that the number of subpopulations is biomarker<br />specific, all replicates for a biomarker use the same number of subpopulations.</p>
+<h3 id="s3">S3</h3>
+<p>To load the S3 results</p>
+<pre><code>&gt;&gt; s3_data=load(&#39;S3.mat&#39;)
+
+s3_data = 
+
+    data_set_names: {2x1 cell}
+       data_set_S3: {2x1 cell}
+
+&gt;&gt; s3_data.data_set_names</code></pre>
+<p>The top level organization follows the same format as features and profiles. To access the S3 data for the second data set we would use</p>
+<pre><code>&gt;&gt; s3_data.data_set_S3{2}
+
+ans = 
+
+        s3_matrix: [11x11 double]
+     marker_names: {11x1 cell}
+    s3_matrix_std: [11x11 double]</code></pre>
+<p>Results are organized by biomarker (there are 11 biomarkers for this dataset), as for profiles and features. <code>marker_names</code> is the same as for features and profiles.</p>
+<h4 id="s3_matrix">1. <code>s3_matrix</code>:</h4>
+<p>Contains the S3 score between all possible pairs of biomarkers. Thus the S3 score between the 3rd and 4th biomarkers can be found as</p>
+<pre><code>&gt;&gt; s3_data.data_set_S3{2}.s3_matrix(3,4)
+
+ans =
+
+    0.0254</code></pre>
+<h4 id="s3_matrix_std">2. <code>s3_matrix_std</code>:</h4>
+<p>This matrix captures the uncertainty in the S3 measurements arising from the stochasticity in optimizations. This is estimated<br /> based on the standard deviation in the S3 scores across all possible pairs of synthetic replicates for the two biomarkers being considered. The<br /> indexing is the same as for <code>s3_matrix</code></p>
