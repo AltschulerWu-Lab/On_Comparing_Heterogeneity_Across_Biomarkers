@@ -19,8 +19,9 @@ in the data section below, then executing:
 ```
 Calculate_S3_Scores('profiles.mat','S3_output.mat');
 ```
-Will calculate the S3 scores between all pairs of biomarkers and store the result in `S3_output.mat` in a format described in the Data section below.
+will calculate the S3 scores between all pairs of biomarkers and store the result in `S3_output.mat` in a format described in the Data section below.
 
+The following code is additionally provided to reproduce the figures given in the main text. All code below was tested using Matlab v.2014a.
 
 Figures:
 -------
@@ -66,7 +67,7 @@ and `2subpop_profiles.mat` (for profiles with only 2 subpopulations for all mark
 3. **S3**: S3 scores between the different pairs of biomarkers:`S3.mat` and `S3_paper.mat`. 
 
 Note: `S3.mat` was generated using the profiles and code provided here. `S3_paper.mat` contains the results shown in the paper, 
-and calculated on a cluster using a larger number of randomizations and synthetic repeats. The mean levels are similar for both files, 
+and calculated on a computing cluster using a larger number of randomizations and synthetic repeats. The mean levels are similar for both files, 
 but `S3_paper.mat` shows a smaller error bars on account of increased sampling.
 
 Each file contains the corresponding data for both data sets. The descriptions of the different data formats are below.
@@ -140,8 +141,7 @@ ans =
 Thus, for the second biomarker (betacatenin), each cell is characterized by the average intensity of that biomarker in the cytoplasmic pixels of that cell.
 
 ####3. `marker_set_numbers`:
-Since it is only possible co-stain a few markers on a cell, the biomarkers were spilt into different marker-sets. All biomarkers within the same marker-set 
-were co-stained, and thus the levels of these biomarkers is measured simultaneously on the same cells. For biomarkers in different marker-sets, no cell is stained 
+Since it is only possible co-stain a few markers on a cell, the biomarkers were split into different marker-sets. All biomarkers within the same marker-set were co-stained, and thus the levels of these biomarkers is measured simultaneously on the same cells. For biomarkers in different marker-sets, no cell is stained 
 for both biomarkers. `marker_set_numbers` is an array specifying which marker set each biomarker belongs to.
 ```
 >> feature_data.data_set_features{2}.marker_set_numbers
